@@ -3,19 +3,30 @@ use leptos_router::hooks::use_params_map;
 use chrono::Local;
 use crate::models::post::BlogPost;
 
+// This is just example data
+// #[server(GetBlogPost)]
+// pub async fn get_blog_post(slug: String) -> Result<BlogPost, ServerFnError> {
+//     Ok(BlogPost {
+//         id: 1,
+//         title: "Getting Started with Rust and Leptos".to_string(),
+//         content: "Rust is a systems programming language...".to_string(),
+//         description: "Rust programming language...".to_string(),
+//         category: "Rust".to_string(),
+//         hero_image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTX6OBtbmbeMEqBGTcdy95TgXxFbZayTrNa6g&s".to_string(),
+//         published_at: Local::now(),
+//         slug,
+//     })
+// }
 #[server(GetBlogPost)]
 pub async fn get_blog_post(slug: String) -> Result<BlogPost, ServerFnError> {
-    // This is just example data
-    Ok(BlogPost {
-        id: 1,
-        title: "Getting Started with Rust and Leptos".to_string(),
-        content: "Rust is a systems programming language...".to_string(),
-        description: "Rust programming language...".to_string(),
-        category: "Rust".to_string(),
-        hero_image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTX6OBtbmbeMEqBGTcdy95TgXxFbZayTrNa6g&s".to_string(),
-        published_at: Local::now(),
-        slug,
-    })
+    use crate::state::AppState;
+
+    let state = expect_context::<AppState>();
+
+    state.db.get_post_by_slug(&slug)
+        .await
+        .map_err(|e| ServerFnError::ServerError(e.to_string()))
+
 }
 
 #[component]
@@ -46,11 +57,11 @@ pub fn BlogPost() -> impl IntoView {
                     view! {
                         <article class="max-w-4xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
                             // Category Badge
-                            <div class="mb-4">
-                                <span class="inline-block bg-blue-100 text-blue-800 text-sm px-3 py-1 rounded-full">
-                                    {post.category}
-                                </span>
-                            </div>
+                            // <div class="mb-4">
+                            //     <span class="inline-block bg-blue-100 text-blue-800 text-sm px-3 py-1 rounded-full">
+                            //         {post.category}
+                            //     </span>
+                            // </div>
 
                             <h1 class="text-4xl font-bold mb-4">{post.title.clone()}</h1>
 

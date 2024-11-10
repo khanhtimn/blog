@@ -15,11 +15,11 @@ pub fn PostCard(post: BlogPost) -> impl IntoView {
             </div>
             <div class="p-6">
                 // Category Badge
-                <div class="mb-4">
-                    <span class="inline-block bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full">
-                        {post.category}
-                    </span>
-                </div>
+                // <div class="mb-4">
+                //     <span class="inline-block bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full">
+                //         {post.category}
+                //     </span>
+                // </div>
 
                 <h3 class="text-xl font-semibold mb-2">
                     <a href={format!("/blog/{}", post.slug)} class="hover:text-blue-600 transition-colors">
