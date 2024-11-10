@@ -10,7 +10,6 @@ use leptos::prelude::*;
 use leptos_meta::*;
 use leptos_router::components::*;
 use leptos_router::path;
-use leptos_router::static_routes::StaticRoute;
 use routes::blog_list::BlogList;
 use routes::blog_post::BlogPost;
 

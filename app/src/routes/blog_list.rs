@@ -1,29 +1,10 @@
 use leptos::prelude::*;
 use leptos_router::components::*;
-use leptos_router::hooks::{use_query_map, use_location};
+use leptos_router::hooks::use_query_map;
 use leptos::either::Either;
-use chrono::Local;
 
 use crate::models::{post::BlogPost, category::Category};
 use crate::components::post_card::PostCard;
-
-// This is just example data
-// #[server(GetBlogPosts)]
-// pub async fn get_blog_posts() -> Result<Vec<BlogPost>, ServerFnError> {
-//     Ok(vec![
-//         BlogPost {
-//             id: 1,
-//             title: "Getting Started with Rust and Leptos".to_string(),
-//             content: "Rust is a systems programming language...".to_string(),
-//             description: "Rust programming language...".to_string(),
-//             category: "Rust".to_string(),
-//             hero_image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTX6OBtbmbeMEqBGTcdy95TgXxFbZayTrNa6g&s".to_string(),
-//             published_at: Local::now(),
-//             slug: "getting-started-with-rust-and-leptos".to_string(),
-//             },
-//         // Add more sample posts...
-//     ])
-// }
 
 #[server(GetBlogPosts)]
 pub async fn get_blog_posts(category_slug: Option<String>) -> Result<Vec<BlogPost>, ServerFnError> {

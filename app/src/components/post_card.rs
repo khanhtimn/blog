@@ -5,7 +5,6 @@ use crate::models::post::BlogPost;
 pub fn PostCard(post: BlogPost) -> impl IntoView {
     view! {
         <div class="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-shadow duration-300">
-            // Hero Image
             <div class="aspect-w-16 aspect-h-9">
                 <img
                     src={post.hero_image}
@@ -14,12 +13,6 @@ pub fn PostCard(post: BlogPost) -> impl IntoView {
                 />
             </div>
             <div class="p-6">
-                // Category Badge
-                // <div class="mb-4">
-                //     <span class="inline-block bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full">
-                //         {post.category}
-                //     </span>
-                // </div>
 
                 <h3 class="text-xl font-semibold mb-2">
                     <a href={format!("/blog/{}", post.slug)} class="hover:text-blue-600 transition-colors">

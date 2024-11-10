@@ -1,22 +1,7 @@
 use leptos::prelude::*;
 use leptos_router::hooks::use_params_map;
-use chrono::Local;
 use crate::models::post::BlogPost;
 
-// This is just example data
-// #[server(GetBlogPost)]
-// pub async fn get_blog_post(slug: String) -> Result<BlogPost, ServerFnError> {
-//     Ok(BlogPost {
-//         id: 1,
-//         title: "Getting Started with Rust and Leptos".to_string(),
-//         content: "Rust is a systems programming language...".to_string(),
-//         description: "Rust programming language...".to_string(),
-//         category: "Rust".to_string(),
-//         hero_image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTX6OBtbmbeMEqBGTcdy95TgXxFbZayTrNa6g&s".to_string(),
-//         published_at: Local::now(),
-//         slug,
-//     })
-// }
 #[server(GetBlogPost)]
 pub async fn get_blog_post(slug: String) -> Result<BlogPost, ServerFnError> {
     use crate::state::AppState;
