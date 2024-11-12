@@ -1,10 +1,8 @@
 use leptos::prelude::*;
-use leptos_router::components::*;
 use leptos_router::hooks::use_query_map;
-use leptos::either::Either;
 
 use crate::models::{post::BlogPost, category::Category};
-use crate::components::post_card::PostCard;
+use crate::components::{post_card::PostCard, post_category::PostCategory};
 
 #[server(GetBlogPosts)]
 pub async fn get_blog_posts(category_slug: Option<String>) -> Result<Vec<BlogPost>, ServerFnError> {
@@ -49,46 +47,23 @@ pub fn BlogList() -> impl IntoView {
     view! {
         <div class="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
             <h1 class="text-3xl font-bold mb-4">"Latest Articles"</h1>
-            //Blog Categories
+            //Blog Posts Categories
             <Suspense>
-                {move || categories.get().map(|cats| match cats {
-                    Ok(categories) => Either::Left(view! {
-                        <div class="flex flex-wrap gap-2 mb-8">
-                            <A href="/blog">
-                                <div
-                                    class={move || match selected_category.get() {
-                                        None => "px-4 py-2 rounded-full transition-colors bg-accent",
-                                        Some(_) => "px-4 py-2 rounded-full transition-colors hover:bg-accent",
-                                    }}
-                                >
-                                    "All"
-                                </div>
-                            </A>
-                            {categories.into_iter().map(|cat| {
-                                let cat_slug = cat.slug.clone();
-                                view! {
-                                    <A href={format!("/blog?category={}", cat.slug)}>
-                                        <div
-                                        class={move || match selected_category.get().as_deref() {
-                                                Some(current_cat) if current_cat == cat_slug =>
-                                                    "px-4 py-2 rounded-full transition-colors bg-accent",
-                                                _ => "px-4 py-2 rounded-full transition-colors hover:bg-accent",
-                                            }}
-                                        >
-                                            {cat.name}
-                                        </div>
-                                    </A>
-                                }
-                            }).collect::<Vec<_>>()}
-                        </div>
-                    }),
-                    Err(e) => Either::Right(view! {
-                        <div class="text-red-500">"Error loading categories: " {e.to_string()}</div>
-                    })
-                })}
-            </Suspense>
+                  {move || match categories.get() {
+                      None => view! { <div>"Loading categories..."</div> }.into_any(),
+                      Some(Ok(categories)) => view! {
+                          <PostCategory
+                              categories=categories
+                              selected_category=selected_category.into()
+                          />
+                      }.into_any(),
+                      Some(Err(e)) => view! {
+                          <div class="text-red-500">"Error loading categories: " {e.to_string()}</div>
+                      }.into_any(),
+                  }}
+              </Suspense>
 
-            //Blog Posts
+            //Blog Posts Cards
             <Suspense
                 fallback=move || view! {
                     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
