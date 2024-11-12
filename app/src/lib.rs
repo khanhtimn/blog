@@ -10,10 +10,10 @@ use leptos::prelude::*;
 use leptos_meta::*;
 use leptos_router::components::*;
 use leptos_router::path;
+use components::bottom_nav::BottomNav;
 use routes::blog_list::BlogList;
 use routes::blog_post::BlogPost;
-
-use crate::routes::{nav::*, home::*};
+use routes::home::*;
 
 pub fn shell(options: LeptosOptions) -> impl IntoView {
     view! {
@@ -35,20 +35,16 @@ pub fn shell(options: LeptosOptions) -> impl IntoView {
 
 #[component]
 pub fn App() -> impl IntoView {
-    // Provides context that manages stylesheets, titles, meta tags, etc.
     provide_meta_context();
     let (is_routing, set_is_routing) = signal(false);
 
     view! {
         <Stylesheet id="leptos" href="/pkg/blog.css"/>
 
-        <Title text="Welcome to Leptos"/>
+        <Title text="Hi, I'm Khánh."/>
 
         <Router set_is_routing>
-            <div class="routing-progress">
-                <RoutingProgress is_routing/>
-            </div>
-            <Nav/>
+            <progress class="progress w-56" hidden=!is_routing()/>
             <main>
                 <Routes fallback=|| "Not found.">
                     <Route
@@ -65,6 +61,7 @@ pub fn App() -> impl IntoView {
                     />
                 </Routes>
             </main>
+            <BottomNav />
         </Router>
     }
 }

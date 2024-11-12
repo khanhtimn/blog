@@ -13,6 +13,7 @@ leptos = { version = "0.7.0-rc1", features = ["nightly"] }
 leptos_meta = { version = "0.7.0-rc1" }
 leptos_router = { version = "0.7.0-rc1" }
 leptos_axum = { version = "0.7.0-rc1" }
+leptos-use = { version = "0.14.0-rc2" }
 
 axum = { version = "0.7", features = ["macros"] }
 cfg-if = "1"
@@ -27,7 +28,12 @@ tower = { version = "0.5.1", features = ["full"] }
 tower-http = { version = "0.6.1", features = ["full"] }
 serde = { version = "1", features = ["derive"] }
 chrono = { version = "0.4", features = ["serde"] }
-sqlx = { version = "0.8", features = ["runtime-tokio-rustls", "macros", "postgres", "chrono"] }
+sqlx = { version = "0.8", features = [
+    "runtime-tokio-rustls",
+    "macros",
+    "postgres",
+    "chrono",
+] }
 dotenv = "0.15.0"
 wasm-bindgen = "=0.2.95"
 anyhow = "1"

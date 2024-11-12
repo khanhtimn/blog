@@ -48,7 +48,7 @@ pub fn BlogList() -> impl IntoView {
 
     view! {
         <div class="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
-            <h1 class="text-3xl font-bold text-gray-900 mb-4">"Latest Articles"</h1>
+            <h1 class="text-3xl font-bold mb-4">"Latest Articles"</h1>
             //Blog Categories
             <Suspense>
                 {move || categories.get().map(|cats| match cats {
@@ -57,8 +57,8 @@ pub fn BlogList() -> impl IntoView {
                             <A href="/blog">
                                 <div
                                     class={move || match selected_category.get() {
-                                        None => "px-4 py-2 rounded-full transition-colors bg-blue-600 text-white",
-                                        Some(_) => "px-4 py-2 rounded-full transition-colors bg-gray-200 hover:bg-gray-300",
+                                        None => "px-4 py-2 rounded-full transition-colors bg-accent",
+                                        Some(_) => "px-4 py-2 rounded-full transition-colors hover:bg-accent",
                                     }}
                                 >
                                     "All"
@@ -71,8 +71,8 @@ pub fn BlogList() -> impl IntoView {
                                         <div
                                         class={move || match selected_category.get().as_deref() {
                                                 Some(current_cat) if current_cat == cat_slug =>
-                                                    "px-4 py-2 rounded-full transition-colors bg-blue-600 text-white",
-                                                _ => "px-4 py-2 rounded-full transition-colors bg-gray-200 hover:bg-gray-300",
+                                                    "px-4 py-2 rounded-full transition-colors bg-accent",
+                                                _ => "px-4 py-2 rounded-full transition-colors hover:bg-accent",
                                             }}
                                         >
                                             {cat.name}
@@ -94,14 +94,11 @@ pub fn BlogList() -> impl IntoView {
                     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                         // Skeleton loading cards
                         {(0..3).map(|_| view! {
-                            <div class="bg-white rounded-lg shadow-lg overflow-hidden animate-pulse">
-                                <div class="h-48 bg-gray-200"></div>
-                                <div class="p-6">
-                                    <div class="h-4 bg-gray-200 rounded w-1/4 mb-4"></div>
-                                    <div class="h-6 bg-gray-200 rounded mb-4"></div>
-                                    <div class="h-4 bg-gray-200 rounded mb-2"></div>
-                                    <div class="h-4 bg-gray-200 rounded w-3/4"></div>
-                                </div>
+                            <div class="flex w-52 flex-col gap-4">
+                                <div class="skeleton h-32 w-full"></div>
+                                <div class="skeleton h-4 w-28"></div>
+                                <div class="skeleton h-4 w-full"></div>
+                                <div class="skeleton h-4 w-full"></div>
                             </div>
                         }).collect::<Vec<_>>()}
                     </div>
