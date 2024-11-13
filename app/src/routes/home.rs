@@ -35,7 +35,7 @@ pub fn HomePage() -> impl IntoView {
     });
 
     view! {
-        <div class="h-screen font-mono p-8"
+        <div class="h-screen p-8"
              tabindex="0">
             <div class="border border-dashed border-accent p-6 max-w-2xl mx-auto">
                 <h1 class="text-4xl mb-8">Hi, Im Quang Khánh</h1>

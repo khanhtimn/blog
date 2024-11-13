@@ -19,6 +19,7 @@ thiserror.workspace = true
 serde.workspace = true
 chrono.workspace = true
 anyhow.workspace = true
+markdown.workspace = true
 sqlx = { workspace = true, optional = true }
 
 [features]

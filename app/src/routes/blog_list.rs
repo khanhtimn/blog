@@ -54,7 +54,7 @@ pub fn BlogList() -> impl IntoView {
                       Some(Ok(categories)) => view! {
                           <PostCategory
                               categories=categories
-                              selected_category=selected_category.into()
+                              selected_category=selected_category.get().into()
                           />
                       }.into_any(),
                       Some(Err(e)) => view! {
