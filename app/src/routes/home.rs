@@ -16,19 +16,21 @@ pub fn HomePage() -> impl IntoView {
     let navigate = use_navigate();
 
     let cycle_selection = move |direction: i32| {
-        let new_idx = (selected_idx() as i32 + direction).rem_euclid(NAV_ELEMENTS.len() as i32) as usize;
+        let new_idx = (selected_idx.get() as i32 + direction).rem_euclid(NAV_ELEMENTS.len() as i32) as usize;
         set_selected_idx(new_idx);
     };
 
     let handle_enter = move || {
-        let (_, href, _, _) = NAV_ELEMENTS[selected_idx()];
+        let (_, href, _, _) = NAV_ELEMENTS[selected_idx.get()];
         navigate(href, NavigateOptions::default());
     };
 
     window_event_listener(keydown, move |e: KeyboardEvent| {
         match e.key().as_str() {
             "j" => cycle_selection(1),
+            "ArrowDown" => cycle_selection(1),
             "k" => cycle_selection(-1),
+            "ArrowUp" => cycle_selection(1),
             "Enter" => handle_enter(),
             _ => (),
         }
@@ -44,7 +46,7 @@ pub fn HomePage() -> impl IntoView {
                         view! {
                             <A href=*href>
                                 <div
-                                    class=move || if selected_idx() == idx {
+                                    class=move || if selected_idx.get() == idx {
                                         "bg-accent px-2 flex justify-between hover:bg-accent cursor-pointer"
                                     } else {
                                         "flex justify-between hover:bg-accent cursor-pointer"

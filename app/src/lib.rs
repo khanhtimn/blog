@@ -44,8 +44,6 @@ pub fn App() -> impl IntoView {
         <Title text="Hi, I'm Khánh."/>
 
         <Router set_is_routing>
-            <progress class="progress" hidden={move || !is_routing.get()}>
-            </progress>
             <main>
                 <Routes fallback=|| "Not found.">
                     <Route
@@ -62,7 +60,7 @@ pub fn App() -> impl IntoView {
                     />
                 </Routes>
             </main>
-            <BottomNav />
+            <BottomNav is_routing=is_routing/>
         </Router>
     }
 }
