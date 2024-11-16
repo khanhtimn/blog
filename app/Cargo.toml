@@ -24,6 +24,7 @@ rand.workspace = true
 getrandom.workspace = true
 web-sys.workspace = true
 wasm-bindgen.workspace = true
+codee.workspace = true
 sqlx = { workspace = true, optional = true }
 
 [features]

@@ -1,5 +1,7 @@
 use leptos::prelude::*;
-use leptos_use::{use_interval_fn, use_raf_fn};
+use leptos::logging::log;
+use leptos_use::{use_interval_fn, use_raf_fn, storage::*};
+use codee::string::JsonSerdeCodec;
 use rand::Rng;
 use serde::{Deserialize, Serialize};
 use std::f64::consts::PI;
@@ -16,7 +18,8 @@ const PIPE_WIDTH: f64 = 52.0;
 const BIRD_SIZE: f64 = 34.0;
 const GROUND_HEIGHT: f64 = 112.0;
 const BACKGROUND_HEIGHT: f64 = 228.0;
-const BIRD_X_POSITION: f64 = 60.0;
+const BIRD_X_POSITION: f64 = 80.0;
+const BIRD_Y_POSITION: f64 = 80.0;
 
 #[derive(Clone, Copy, PartialEq)]
 enum GameState {
@@ -51,6 +54,7 @@ pub struct GameAssets {
 
 #[server(GetGameAssets)]
 pub async fn get_game_assets() -> Result<GameAssets, ServerFnError> {
+    log!("Server: Getting game assets");
     Ok(GameAssets {
         bird_frames: vec![
             "/flappybird/img/bird/b0.png".to_string(),
@@ -68,48 +72,16 @@ pub async fn get_game_assets() -> Result<GameAssets, ServerFnError> {
 #[component]
 pub fn FlappyBird() -> impl IntoView {
     let canvas_ref = NodeRef::<leptos::html::Canvas>::new();
-
     let (game_state, set_game_state) = signal(GameState::Loading);
     let (score, set_score) = signal(0);
-    let (high_score, set_high_score) = signal(0);
+    let (frame_count, set_frame_count) = signal(0);
 
-    let assets = Resource::new(|| (), |_| async move { get_game_assets().await });
-    let (images_loaded, set_images_loaded) = signal(0);
-    let total_images = 7;
-
-    let bird_refs = StoredValue::new((0..4).map(|_| NodeRef::<leptos::html::Img>::new()).collect::<Vec<_>>());
-    let pipe_top_ref = NodeRef::<leptos::html::Img>::new();
-    let pipe_bottom_ref = NodeRef::<leptos::html::Img>::new();
-    let bg_ref = NodeRef::<leptos::html::Img>::new();
-
-    Effect::new(move |_| {
-        let mut loaded = 0;
-
-        for bird_ref in &bird_refs.get_value() {
-            if let Some(img) = bird_ref.get() {
-                if img.complete() {
-                    loaded += 1;
-                }
-            }
-        }
-
-        for img_ref in [&pipe_top_ref, &pipe_bottom_ref, &bg_ref] {
-            if let Some(img) = img_ref.get() {
-                if img.complete() {
-                    loaded += 1;
-                }
-            }
-        }
-
-        set_images_loaded.set(loaded);
-
-        if loaded == total_images {
-            set_game_state.set(GameState::GetReady);
-        }
-    });
+    let (high_score, set_high_score, _) = use_local_storage::<i32, JsonSerdeCodec>(
+        "flappy_high_score"
+    );
 
     let (bird, set_bird) = signal(Bird {
-        y: 100.0,
+        y: BIRD_Y_POSITION,
         speed: 0.0,
         rotation: 0.0,
         frame: 0,
@@ -117,35 +89,58 @@ pub fn FlappyBird() -> impl IntoView {
 
     let (pipes, set_pipes) = signal::<Vec<Pipe>>(vec![]);
 
-    let (frame_count, set_frame_count) = signal(0);
+    let assets = Resource::new(
+        || (),
+        move |_| {
+            log!("Client: Fetching game assets");
+            get_game_assets()
+        }
+    );
 
-    let _stop = use_raf_fn(move |_| {
-        if game_state.get() != GameState::Loading {
-            if let Some(canvas) = canvas_ref.get() {
-                let ctx = canvas.get_context("2d").unwrap().unwrap().dyn_into::<web_sys::CanvasRenderingContext2d>().unwrap();
-                update_game(
-                    game_state.get(),
-                    bird,
-                    set_bird,
-                    pipes,
-                    set_pipes,
-                    set_score,
-                    frame_count,
-                    set_frame_count,
-                    set_game_state,
-                );
-                draw_game(
-                    &ctx,
-                    game_state.get(),
-                    bird.get(),
-                    pipes.get(),
-                    score.get(),
-                    frame_count.get(),
-                    assets.get(),
-                );
+    Effect::new(move |_| {
+        match assets.get() {
+            Some(Ok(_)) => {
+                log!("Assets loaded successfully");
+                set_game_state.set(GameState::GetReady);
+            }
+            Some(Err(e)) => {
+                log!("Error loading assets: {:?}", e);
+            }
+            None => {
+                log!("Assets not loaded yet");
             }
         }
     });
+
+    let handle_input = move |_| {
+        match game_state.get() {
+            GameState::GetReady => {
+                set_game_state.set(GameState::Playing);
+            }
+            GameState::Playing => {
+                set_bird.update(|bird| {
+                    bird.speed = -THRUST;
+                });
+            }
+            GameState::GameOver => {
+               let current_score = score.get();
+               if current_score > high_score.get() {
+                   set_high_score.set(current_score);
+               }
+
+               set_game_state.set(GameState::GetReady);
+               set_bird.set(Bird {
+                   y: 100.0,
+                   speed: 0.0,
+                   rotation: 0.0,
+                   frame: 0,
+               });
+               set_pipes.set(vec![]);
+               set_score.set(0);
+            }
+            GameState::Loading => (),
+        }
+    };
 
     let _pipe_spawner = use_interval_fn(
         move || {
@@ -156,133 +151,100 @@ pub fn FlappyBird() -> impl IntoView {
         2000,
     );
 
-    let handle_input = move |_| {
-        match game_state.get() {
-            GameState::GetReady => {
-                set_game_state.set(GameState::Playing);
+    let game_canvas = move || {
+        Suspend::new(async move {
+            let game_assets = assets.get_untracked().unwrap();
+
+            let _stop = use_raf_fn(move |_| {
+                if game_state.get() != GameState::Loading {
+                    if let Some(canvas) = canvas_ref.get() {
+                        let ctx = canvas
+                            .get_context("2d")
+                            .unwrap()
+                            .unwrap()
+                            .dyn_into::<web_sys::CanvasRenderingContext2d>()
+                            .unwrap();
+
+                        update_game(
+                            game_state.get(),
+                            bird,
+                            set_bird,
+                            pipes,
+                            set_pipes,
+                            set_score,
+                            frame_count,
+                            set_frame_count,
+                            set_game_state,
+                        );
+
+                        draw_game(
+                            &ctx,
+                            game_state.get(),
+                            bird.get(),
+                            pipes.get(),
+                            score.get(),
+                            frame_count.get(),
+                            Some(Ok(game_assets.clone().unwrap())),
+                        );
+                    }
+                }
+            });
+
+            view! {
+                <canvas
+                    node_ref=canvas_ref
+                    width=CANVAS_WIDTH
+                    height=CANVAS_HEIGHT
+                    on:click=move |_| handle_input(())
+                    on:keydown=move |e| {
+                        if e.key() == "Space" {
+                            handle_input(());
+                        }
+                    }
+                    class="game-canvas"
+                    tabindex="0"
+                />
             }
-            GameState::Playing => {
-                // Bird flap
-                set_bird.update(|bird| {
-                    bird.speed = -THRUST;
-                });
-            }
-            GameState::GameOver => {
-                // Reset game
-                set_game_state.set(GameState::GetReady);
-                set_bird.set(Bird {
-                    y: 100.0,
-                    speed: 0.0,
-                    rotation: 0.0,
-                    frame: 0,
-                });
-                set_pipes.set(vec![]);
-                set_score.set(0);
-            }
-            GameState::Loading => (),
-        }
+        })
     };
 
+    // Main view
     view! {
-       <div class="game-container">
-           <Suspense fallback=move || view! { <div>"Loading assets..."</div> }>
-               {move || match assets.get() {
-                   Some(Ok(assets)) => view! {
-                           <>
-                               // Preload images with refs
-                               <div class="hidden">
-                                   {(0..4).map(|i| view! {
-                                       <img
-                                           node_ref=bird_refs.get_value()[i]
-                                           src={assets.bird_frames[i].clone()}
-                                           style="display: none"
-                                       />
-                                   }).collect_view()}
-                                   <img
-                                       node_ref=pipe_top_ref
-                                       src={assets.pipe_top.clone()}
-                                       style="display: none"
-                                   />
-                                   <img
-                                       node_ref=pipe_bottom_ref
-                                       src={assets.pipe_bottom.clone()}
-                                       style="display: none"
-                                   />
-                                   <img
-                                       node_ref=bg_ref
-                                       src={assets.background.clone()}
-                                       style="display: none"
-                                   />
-                               </div>
-
-                               <Show
-                                   when=move || images_loaded.get() == total_images
-                                   fallback=move || view! {
-                                       <div class="loading">
-                                           "Loading images... " {images_loaded.get()} "/" {total_images}
-                                       </div>
-                                   }
-                               >
-                                   <div class="game-wrapper">
-                                       <canvas
-                                           node_ref=canvas_ref
-                                           width=CANVAS_WIDTH
-                                           height=CANVAS_HEIGHT
-                                           on:click=move |_| handle_input(())
-                                           on:keydown=move |e| {
-                                               if e.key() == "Space" {
-                                                   handle_input(());
-                                               }
-                                           }
-                                           class="game-canvas"
-                                           tabindex="0"
-                                       />
-
-                                       <div class="game-ui">
-                                           {move || match game_state.get() {
-                                               GameState::GetReady => view! {
-                                                   <div class="get-ready">
-                                                       <div class="message">"Tap to Start"</div>
-                                                       <div class="controls">"Space or Click to play"</div>
-                                                   </div>
-                                               }.into_any(),
-                                               GameState::Playing => view! {
-                                                   <div class="score-display">
-                                                       <div class="current-score">{score.get()}</div>
-                                                   </div>
-                                               }.into_any(),
-                                               GameState::GameOver => view! {
-                                                   <div class="game-over">
-                                                       <div class="final-score">"Score: " {score.get()}</div>
-                                                       <div class="high-score">"Best: " {high_score.get()}</div>
-                                                       <div class="restart-prompt">"Tap to Restart"</div>
-                                                   </div>
-                                               }.into_any(),
-                                               GameState::Loading => view! {
-                                                   <div class="loading">"Initializing..."</div>
-                                               }.into_any()
-                                           }}
-                                       </div>
-                                   </div>
-                               </Show>
-                           </>
-                       }.into_any(),
-                   Some(Err(e)) => view! {
-                       <div class="error-container">
-                           <div class="error-message">
-                               "Failed to load game assets"
-                           </div>
-                           <div class="error-details">
-                               {format!("Error: {}", e)}
-                           </div>
-                       </div>
-                   }.into_any(),
-                   None => view! { <div class="loading">"Loading..."</div> }.into_any()
-               }}
-           </Suspense>
-       </div>
+        <div class="game-container">
+            <Suspense fallback=move || view! { <div>"Loading game assets..."</div> }>
+                <div class="game-wrapper">
+                    {game_canvas}
+                    <div class="game-ui">
+                        {move || match game_state.get() {
+                            GameState::GetReady => view! {
+                                <div class="get-ready">
+                                    <div class="message">"Tap to Start"</div>
+                                    <div class="controls">"Space or Click to play"</div>
+                                </div>
+                            }.into_any(),
+                            GameState::Playing => view! {
+                                <div class="score-display">
+                                    <div class="current-score">{score.get()}</div>
+                                </div>
+                            }.into_any(),
+                            GameState::GameOver => view! {
+                                <div class="game-over">
+                                    <div class="final-score">"Score: " {score.get()}</div>
+                                    <div class="high-score">"Best: " {high_score.get()}</div>
+                                    <div class="restart-prompt">"Tap to Restart"</div>
+                                </div>
+                            }.into_any(),
+                            GameState::Loading => view! {
+                                <div class="loading">"Initializing..."</div>
+                            }.into_any()
+                        }}
+                    </div>
+                </div>
+            </Suspense>
+        </div>
     }
 }
+
 
 fn spawn_pipe(set_pipes: WriteSignal<Vec<Pipe>>) {
     let mut rng = rand::thread_rng();
@@ -366,7 +328,7 @@ fn draw_game(
     bird: Bird,
     pipes: Vec<Pipe>,
     score: i32,
-    _frame_count: u32,
+    frame_count: u32,
     assets: Option<Result<GameAssets, ServerFnError>>,
 ){
     if let Some(Ok(assets)) = assets {
@@ -399,21 +361,24 @@ fn draw_game(
         draw_image(bird_img, -BIRD_SIZE/2.0, -BIRD_SIZE/2.0);
         ctx.restore();
 
-        draw_image(&assets.ground, 0.0, CANVAS_HEIGHT as f64 - GROUND_HEIGHT);
+        // draw_image(&assets.ground, 0.0, CANVAS_HEIGHT as f64 - GROUND_HEIGHT);
+        let ground_offset = match state {
+            GameState::Playing | GameState::GetReady => {
+                (frame_count as f64 * 2.0) % CANVAS_WIDTH as f64
+            },
+            _ => 0.0
+        };
 
-        // Draw score
-        // if state == GameState::Playing {
-        //     ctx.set_font("24px Arial");
-        //     ctx.set_fill_style(&"#FFFFFF".into());
-        //     let score_text = score.to_string();
-        //     let metrics = ctx.measure_text(&score_text).unwrap();
-        //     let text_width = metrics.width();
-        //     ctx.fill_text(
-        //         &score_text,
-        //         (CANVAS_WIDTH as f64 - text_width) / 2.0,
-        //         50.0
-        //     ).ok();
-        // }
+        draw_image(
+            &assets.ground,
+            -ground_offset,
+            CANVAS_HEIGHT as f64 - GROUND_HEIGHT
+        );
+        draw_image(
+            &assets.ground,
+            CANVAS_WIDTH as f64 - ground_offset,
+            CANVAS_HEIGHT as f64 - GROUND_HEIGHT
+        );
     }
 }
 
@@ -425,8 +390,8 @@ fn check_collision(bird: Bird, pipes: Vec<Pipe>) -> bool {
 
     // Pipe collision
     for pipe in pipes {
-        if (BIRD_X_POSITION + BIRD_SIZE/2.0 > pipe.x &&
-            BIRD_X_POSITION - BIRD_SIZE/2.0 < pipe.x + PIPE_WIDTH)
+        if BIRD_X_POSITION + BIRD_SIZE/2.0 > pipe.x &&
+            BIRD_X_POSITION - BIRD_SIZE/2.0 < pipe.x + PIPE_WIDTH
         {
             let top_pipe_bottom = pipe.y + PIPE_TOP_HEIGHT;
             let bottom_pipe_top = pipe.y + PIPE_TOP_HEIGHT + PIPE_GAP;
