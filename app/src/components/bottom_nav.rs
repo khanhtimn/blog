@@ -1,7 +1,6 @@
 use leptos::prelude::*;
-use leptos_router::components::A;
 use leptos_router::hooks::use_location;
-use crate::models::routes::Routes;
+use crate::routes::Routes;
 
 const TABS: [(Routes, &str, &str); 3] = [
     (Routes::Home, "/", "Home"),
@@ -33,19 +32,17 @@ pub fn BottomNav(is_routing: ReadSignal<bool>) -> impl IntoView {
     view! {
         <div class="bg-base-100 fixed bottom-0 left-0 right-0 font-bold border-t border-base-300">
             <div class="grid grid-cols-3 items-center h-8">
-                // Left section
                 <div class="hidden sm:flex items-center pl-4">
                     <span class="bg-accent px-2">NORMAL</span>
                 </div>
-                <div class="sm:hidden"></div> // Empty div for mobile
+                <div class="sm:hidden"></div>
 
-                // Center section
                 <div class="flex justify-center items-center">
                     <div class="flex space-x-4 sm:space-x-8">
                         {move || TABS.iter().map(|(tab, href, text)| {
                             let is_active = current_tab().map_or(false, |current| current == *tab);
                             view! {
-                                <A href=*href>
+                                <a href=*href>
                                     <div
                                         class=move || if is_active {
                                             "text-accent transition-colors"
@@ -54,13 +51,12 @@ pub fn BottomNav(is_routing: ReadSignal<bool>) -> impl IntoView {
                                         }>
                                         {text.to_string()}
                                     </div>
-                                </A>
+                                </a>
                             }
                         }).collect::<Vec<_>>()}
                     </div>
                 </div>
 
-                // Right section
                 <div class="flex justify-end pr-4">
                     <div class="relative w-20 sm:w-40">
                         <progress class="progress w-20 sm:w-40 absolute right-0" hidden={move || !is_routing.get()}></progress>

@@ -1,4 +1,5 @@
 use leptos::prelude::*;
+use leptos::either::*;
 use leptos_router::hooks::use_params_map;
 use crate::models::post::BlogPost;
 use crate::components::post::Post;
@@ -37,15 +38,15 @@ pub fn BlogPost() -> impl IntoView {
             }
         >
             {move || match post.get() {
-                None => view! { <div>"Loading..."</div> }.into_any(),
-                Some(Ok(post)) => view! { <Post post /> }.into_any(),
-                Some(Err(e)) => view! {
+                None => EitherOf3::A(view! { <div>"Loading..."</div> }),
+                Some(Ok(post)) => EitherOf3::B(view! { <Post post /> }),
+                Some(Err(e)) => EitherOf3::C(view! {
                     <div class="max-w-4xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
                         <div class="text-red-500 p-4 bg-red-50 rounded-lg">
                             "Error loading post: " {e.to_string()}
                         </div>
                     </div>
-                }.into_any(),
+                }),
             }}
         </Suspense>
     }

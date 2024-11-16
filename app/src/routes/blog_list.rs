@@ -1,4 +1,5 @@
 use leptos::prelude::*;
+use leptos::either::*;
 use leptos_router::hooks::use_query_map;
 
 use crate::models::{post::BlogPost, category::Category};
@@ -50,16 +51,16 @@ pub fn BlogList() -> impl IntoView {
             //Blog Posts Categories
             <Suspense>
                   {move || match categories.get() {
-                      None => view! { <div>"Loading categories..."</div> }.into_any(),
-                      Some(Ok(categories)) => view! {
+                      None => EitherOf3::A(view! { <div>"Loading categories..."</div> }),
+                      Some(Ok(categories)) => EitherOf3::B(view! {
                           <PostCategory
                               categories=categories
                               selected_category=selected_category.get().into()
                           />
-                      }.into_any(),
-                      Some(Err(e)) => view! {
+                      }),
+                      Some(Err(e)) => EitherOf3::C(view! {
                           <div class="text-red-500">"Error loading categories: " {e.to_string()}</div>
-                      }.into_any(),
+                      }),
                   }}
               </Suspense>
 
@@ -80,20 +81,19 @@ pub fn BlogList() -> impl IntoView {
                 }
             >
                 {move || match posts.get() {
-                    None => view! { <div>"Loading..."</div> }.into_any(),
-                    Some(Ok(posts)) => {
-                        view! {
-                            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                                {posts.into_iter()
-                                    .map(|post| view! { <PostCard post=post/> })
-                                    .collect::<Vec<_>>()}
-                            </div>
-                        }.into_any() }
-                    Some(Err(e)) => view! {
+                    None => EitherOf3::A(view! { <div>"Loading..."</div> }),
+                    Some(Ok(posts)) => EitherOf3::B(view! {
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                            {posts.into_iter()
+                                .map(|post| view! { <PostCard post=post/> })
+                                .collect::<Vec<_>>()}
+                        </div>
+                    }),
+                    Some(Err(e)) => EitherOf3::C(view! {
                         <div class="text-red-500 p-4 bg-red-50 rounded-lg">
                             "Error loading posts: " {e.to_string()}
                         </div>
-                    }.into_any(),
+                    }),
                 }}
             </Suspense>
         </div>

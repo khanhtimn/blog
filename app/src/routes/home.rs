@@ -1,8 +1,7 @@
-use leptos_router::components::A;
 use leptos::prelude::*;
 use leptos::ev::{keydown, KeyboardEvent};
 use leptos_router::{hooks::use_navigate, NavigateOptions};
-use crate::models::routes::Routes;
+use crate::routes::Routes;
 
 const NAV_ELEMENTS: [(Routes, &str, &str, &str); 3] = [
     (Routes::Home, "/", "Home Page", "f"),
@@ -44,7 +43,7 @@ pub fn HomePage() -> impl IntoView {
                 <div class="space-y-2">
                     {NAV_ELEMENTS.iter().enumerate().map(|(idx, (_route, href, text, key))| {
                         view! {
-                            <A href=*href>
+                            <a href=*href>
                                 <div
                                     class=move || if selected_idx.get() == idx {
                                         "bg-accent px-2 flex justify-between hover:bg-accent cursor-pointer"
@@ -56,7 +55,7 @@ pub fn HomePage() -> impl IntoView {
                                     <span>{*text}</span>
                                     <span>{*key}</span>
                                 </div>
-                            </A>
+                            </a>
                         }
                     }).collect::<Vec<_>>()}
                 </div>

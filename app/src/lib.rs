@@ -10,10 +10,11 @@ use leptos::prelude::*;
 use leptos_meta::*;
 use leptos_router::components::*;
 use leptos_router::path;
-use components::{bottom_nav::BottomNav, flappybird::FlappyBird};
+use components::bottom_nav::BottomNav;
 use routes::blog_list::BlogList;
 use routes::blog_post::BlogPost;
 use routes::home::*;
+use routes::page_not_found::PageNotFound;
 
 pub fn shell(options: LeptosOptions) -> impl IntoView {
     view! {
@@ -45,7 +46,7 @@ pub fn App() -> impl IntoView {
 
         <Router set_is_routing>
             <main>
-            <Routes fallback=move || view! { <FlappyBird/> }>
+            <Routes fallback=move || view! { <PageNotFound/> }>
                     <Route
                         path=path!("/")
                         view=HomePage
