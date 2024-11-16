@@ -100,6 +100,7 @@ dependencies = [
  "axum",
  "cfg-if",
  "chrono",
+ "getrandom",
  "http",
  "leptos",
  "leptos-use",
@@ -107,9 +108,12 @@ dependencies = [
  "leptos_meta",
  "leptos_router",
  "markdown",
+ "rand",
  "serde",
  "sqlx",
  "thiserror 2.0.2",
+ "wasm-bindgen",
+ "web-sys",
 ]
 
 [[package]]
@@ -949,8 +953,10 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "c4567c8db10ae91089c99af84c68c38da3ec2f087c3f82960bcdbf3656b6f4d7"
 dependencies = [
  "cfg-if",
+ "js-sys",
  "libc",
  "wasi",
+ "wasm-bindgen",
 ]
 
 [[package]]

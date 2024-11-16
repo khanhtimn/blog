@@ -20,6 +20,10 @@ serde.workspace = true
 chrono.workspace = true
 anyhow.workspace = true
 markdown.workspace = true
+rand.workspace = true
+getrandom.workspace = true
+web-sys.workspace = true
+wasm-bindgen.workspace = true
 sqlx = { workspace = true, optional = true }
 
 [features]

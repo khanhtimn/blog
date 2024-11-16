@@ -13,7 +13,7 @@ leptos = { version = "0.7.0-rc1", features = ["nightly"] }
 leptos_meta = { version = "0.7.0-rc1" }
 leptos_router = { version = "0.7.0-rc1" }
 leptos_axum = { version = "0.7.0-rc1" }
-leptos-use = { version = "0.14.0-rc2" }
+leptos-use = { version = "0.14.0-rc2", features = ["use_interval_fn", "use_raf_fn"] }
 
 axum = { version = "0.7", features = ["macros"] }
 cfg-if = "1"
@@ -36,8 +36,14 @@ sqlx = { version = "0.8", features = [
 ] }
 dotenv = "0.15.0"
 wasm-bindgen = "=0.2.95"
+web-sys = { version = "0.3", features = [
+    "CanvasRenderingContext2d",
+    "HtmlCanvasElement",
+]}
 anyhow = "1"
 markdown = "1.0.0-alpha.21"
+getrandom = { version = "0.2.7", features = ["js"] }
+rand = { version = "0.8.5", features = ["small_rng"] }
 
 # See https://github.com/akesson/cargo-leptos for documentation of all the parameters.
 
