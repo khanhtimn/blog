@@ -40,7 +40,7 @@ pub fn BottomNav(is_routing: ReadSignal<bool>) -> impl IntoView {
                 <div class="flex justify-center items-center">
                     <div class="flex space-x-4 sm:space-x-8">
                         {move || TABS.iter().map(|(tab, href, text)| {
-                            let is_active = current_tab().map_or(false, |current| current == *tab);
+                            let is_active = current_tab() == Some(*tab);
                             view! {
                                 <a href=*href>
                                     <div

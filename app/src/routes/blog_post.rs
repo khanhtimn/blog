@@ -20,7 +20,7 @@ pub async fn get_blog_post(slug: String) -> Result<BlogPost, ServerFnError> {
 pub fn BlogPost() -> impl IntoView {
     let params = use_params_map();
     let slug = move || params.with(|params| params.get("slug").unwrap_or_default());
-    let post = Resource::new(slug, |slug| get_blog_post(slug));
+    let post = Resource::new(slug, get_blog_post);
 
     view! {
         <Suspense

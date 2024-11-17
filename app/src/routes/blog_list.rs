@@ -35,7 +35,7 @@ pub async fn get_categories() -> Result<Vec<Category>, ServerFnError> {
 pub fn BlogList() -> impl IntoView {
     let query = use_query_map();
     let category = move || query.with(|q| q.get("category"));
-    let posts = Resource::new(category, |cat| get_blog_posts(cat));
+    let posts = Resource::new(category, get_blog_posts);
     let categories = Resource::new(|| (), |_| get_categories());
 
     let (selected_category, set_selected_category) = signal(None::<String>);

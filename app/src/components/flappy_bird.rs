@@ -236,6 +236,7 @@ fn update_game(
     }
 }
 
+#[allow(deprecated)]
 fn draw_game(
     ctx: &web_sys::CanvasRenderingContext2d,
     state: GameState,

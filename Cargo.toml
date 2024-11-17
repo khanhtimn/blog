@@ -8,6 +8,9 @@ codegen-units = 1
 lto = true
 opt-level = 'z'
 
+[profile.wasm-release]
+inherits = "release"
+
 [workspace.dependencies]
 leptos = { version = "0.7.0-rc1", features = ["nightly"] }
 leptos_meta = { version = "0.7.0-rc1" }

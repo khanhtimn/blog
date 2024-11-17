@@ -1,5 +1,4 @@
 use leptos::prelude::*;
-use leptos::either::Either;
 use leptos::logging::log;
 use crate::components::flappy_bird::FlappyBird;
 use crate::models::flappy_bird::GameAssets;

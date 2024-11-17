@@ -13,7 +13,6 @@ ENV DATABASE_URL="postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_
 
 WORKDIR /work
 
-# Make sure to have proper .dockerignore
 COPY . .
 
 # Create necessary directories
@@ -27,15 +26,16 @@ COPY tailwind.config.js .
 COPY style/tailwind.css ./style/
 
 # Build the application
-RUN cargo leptos build --release
+RUN npm i -D
+RUN cargo leptos build --release -vv
 
 # Production stage
 FROM scratch as app
 
 # Runtime environment variables
 ENV LEPTOS_OUTPUT_NAME=blog
-ENV LEPTOS_SITE_ROOT=site
-ENV LEPTOS_SITE_PKG_DIR=pkg
+ENV LEPTOS_SITE_ROOT=./site
+ENV LEPTOS_SITE_PKG_DIR=./pkg
 ENV LEPTOS_SITE_ADDR="0.0.0.0:3000"
 ENV LEPTOS_RELOAD_PORT=3001
 
@@ -52,8 +52,8 @@ WORKDIR /app
 
 COPY --chown=10001:10001 --from=builder /work/target/site/ ./site/
 COPY --chown=10001:10001 --from=builder /work/target/server/release/server .
-COPY --chown=10001:10001 --from=builder /work/style/output.css ./site/
-
+COPY --chown=10001:10001 --from=builder /work/style/tailwind.css ./site/
+COPY --chown=10001:10001 --from=builder /work/Cargo.toml .
 EXPOSE 3000
 
 # Use an entrypoint script to build DATABASE_URL at runtime
