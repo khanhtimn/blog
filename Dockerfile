@@ -32,32 +32,14 @@ RUN cargo leptos build --release -vv
 # Production stage
 FROM scratch as app
 
-# Runtime environment variables
-ENV LEPTOS_OUTPUT_NAME=blog
-ENV LEPTOS_SITE_ROOT=./site
-ENV LEPTOS_SITE_PKG_DIR=./pkg
-ENV LEPTOS_SITE_ADDR="0.0.0.0:3000"
-ENV LEPTOS_RELOAD_PORT=3001
-
-# Database configuration at runtime
-ENV POSTGRES_USER=""
-ENV POSTGRES_PASSWORD=""
-ENV POSTGRES_HOST=""
-ENV POSTGRES_PORT=""
-ENV POSTGRES_DB=""
-
 USER 10001
 
 WORKDIR /app
 
 COPY --chown=10001:10001 --from=builder /work/target/site/ ./site/
-COPY --chown=10001:10001 --from=builder /work/target/server/release/server .
+COPY --chown=10001:10001 --from=builder /work/target/release/server .
 COPY --chown=10001:10001 --from=builder /work/style/tailwind.css ./site/
 COPY --chown=10001:10001 --from=builder /work/Cargo.toml .
 EXPOSE 3000
 
-# Use an entrypoint script to build DATABASE_URL at runtime
-COPY --chown=10001:10001 docker-entrypoint.sh /app/
-RUN chmod +x /app/docker-entrypoint.sh
-
-ENTRYPOINT ["/app/docker-entrypoint.sh"]
+ENTRYPOINT ["/app/server"]
