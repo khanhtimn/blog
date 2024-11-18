@@ -1,7 +1,7 @@
 use sqlx::PgPool;
 use std::env;
 use axum::extract::FromRef;
-use leptos::prelude::LeptosOptions;
+use leptos::prelude::{LeptosOptions, ServerFnError};
 use crate::db;
 
 #[derive(FromRef, Clone, Debug)]
@@ -12,7 +12,7 @@ pub struct AppState {
 }
 
 impl AppState {
-    pub async fn try_from_leptos_state(leptos_options: LeptosOptions) -> anyhow::Result<Self> {
+    pub async fn try_from_leptos_state(leptos_options: LeptosOptions) -> Result<Self, ServerFnError> {
         let database_url = env::var("DATABASE_URL")
             .expect("DATABASE_URL must be set");
 

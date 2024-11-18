@@ -4,12 +4,14 @@ members = ["app", "frontend", "server"]
 
 # need to be applied only to wasm build
 [profile.release]
-codegen-units = 1
 lto = true
-opt-level = 'z'
+panic = "unwind"
+opt-level = 3
 
 [profile.wasm-release]
 inherits = "release"
+codegen-units = 1
+opt-level = 'z'
 
 [workspace.dependencies]
 leptos = { version = "0.7.0-rc1", features = ["nightly"] }
@@ -37,7 +39,7 @@ sqlx = { version = "0.8", features = [
     "postgres",
     "chrono",
 ] }
-dotenv = "0.15.0"
+dotenvy = "0.15.0"
 wasm-bindgen = "=0.2.95"
 web-sys = { version = "0.3", features = [
     "CanvasRenderingContext2d",
@@ -45,8 +47,7 @@ web-sys = { version = "0.3", features = [
     "HtmlImageElement"
 ]}
 codee = { version = "0.2", features = ["json_serde"] }
-anyhow = "1"
-markdown = "1.0.0-alpha.21"
+femark = "0.1.6"
 getrandom = { version = "0.2.7", features = ["js"] }
 rand = { version = "0.8.5", features = ["small_rng"] }
 
@@ -116,6 +117,11 @@ bin-features = []
 #
 # Optional. Defaults to false.
 bin-default-features = false
+
+# The profile to use for the bin target when compiling for release
+#
+# Optional. Defaults to "release".
+bin-profile-release = "release"
 
 # The features to use when compiling the lib target
 #

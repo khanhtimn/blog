@@ -1,5 +1,5 @@
 use sqlx::PgPool;
-use crate::models::{category::Category, post::BlogPost};
+use crate::models::{category::Category, post::BlogPost, post::SqlPost};
 
 
 #[derive(Debug, Clone)]
@@ -41,7 +41,7 @@ impl PostRepository {
 
     pub async fn get_all_posts_with_categories(&self) -> Result<Vec<BlogPost>, sqlx::Error> {
         let posts = sqlx::query_as!(
-            BlogPost,
+            SqlPost,
             r#"
             SELECT
                 p.id, p.title, p.description, p.hero_image,
@@ -72,7 +72,7 @@ impl PostRepository {
             .await?;
 
             post.categories = categories;
-            posts_with_categories.push(post);
+            posts_with_categories.push(post.into_post());
         }
 
         Ok(posts_with_categories)
@@ -83,7 +83,7 @@ impl PostRepository {
         category_slug: &str
     ) -> Result<Vec<BlogPost>, sqlx::Error> {
         let posts = sqlx::query_as!(
-            BlogPost,
+            SqlPost,
             r#"
             SELECT DISTINCT
                 p.id, p.title, p.description, p.hero_image,
@@ -118,7 +118,7 @@ impl PostRepository {
             .await?;
 
             post.categories = categories;
-            posts_with_categories.push(post);
+            posts_with_categories.push(post.into_post());
         }
 
         Ok(posts_with_categories)
@@ -172,7 +172,7 @@ impl PostRepository {
 
     pub async fn get_post_by_slug(&self, slug: &str) -> Result<BlogPost, sqlx::Error> {
         let mut post = sqlx::query_as!(
-            BlogPost,
+            SqlPost,
             r#"
             SELECT
                 p.id, p.title, p.description, p.hero_image,
@@ -201,6 +201,6 @@ impl PostRepository {
         .await?;
 
         post.categories = categories;
-        Ok(post)
+        Ok(post.into_post())
     }
 }

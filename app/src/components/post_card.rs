@@ -21,7 +21,7 @@ pub fn PostCard(post: BlogPost) -> impl IntoView {
                 </h3>
 
                 <div class="text-secondary text-sm mb-3">
-                    {post.published_at.format("%B %d, %Y").to_string()}
+                    {post.published_at}
                 </div>
 
                 <p class="text-primary-content line-clamp-3">
