@@ -1,5 +1,5 @@
 # Main Dockerfile
-FROM leptos-builder-musl AS builder
+FROM ghcr.io/khanhtimn/cargo-leptos-builder-musl:latest AS builder
 
 # Build arguments for database configuration
 ARG POSTGRES_USER
