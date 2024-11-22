@@ -41,11 +41,6 @@ jobs:
       - name: Create env file
         run: |
           echo "GIT_COMMIT_HASH=${{ github.sha }}" >> ./envfile
-      - name: Start SSH Agent
-        run: |
-          eval $(ssh-agent -s)
-          ssh-add - <<< "${{ secrets.DEPLOY_SSH_PRIVATE_KEY_PASSPHRASE }}"
-          echo "${{ secrets.DEPLOY_SSH_PRIVATE_KEY }}" | ssh-add -
       - name: Docker Stack Deploy
         uses: cssnr/stack-deploy-action@v1
         with:
