@@ -1,0 +1,48 @@
+version: "3.8"
+
+services:
+  web:
+    image: ghcr.io/khanhtimn/blog:${GIT_COMMIT_HASH:-latest}
+    secrets:
+      - db-password
+    environment:
+      - POSTGRES_HOST=/run/secrets/postgres_host
+      - POSTGRES_PASSWORD=/run/secrets/postgres_password
+      - POSTGRES_USER=/run/secrets/postgres_user
+      - POSTGRES_DB=/run/secrets/postgres_db
+      - POSTGRES_PORT=/run/secrets/postgres_port
+      - LEPTOS_OUTPUT_NAME=blog
+      - LEPTOS_SITE_ROOT=./site
+      - LEPTOS_SITE_PKG_DIR=./pkg
+      - LEPTOS_SITE_ADDR=0.0.0.0:3000
+      - LEPTOS_RELOAD_PORT=3001
+    deploy:
+      update_config:
+        order: start-first
+    ports:
+      - "3000:3000"
+      - "3001:3001"
+    volumes:
+      - blog-data:/app/data
+    secrets:
+      - postgres_user
+      - postgres_password
+      - postgres_host
+      - postgres_port
+      - postgres_db
+
+volumes:
+  blog-data:
+    driver: local
+
+secrets:
+  postgres_user:
+    external: true
+  postgres_password:
+    external: true
+  postgres_host:
+    external: true
+  postgres_port:
+    external: true
+  postgres_db:
+    external: true
