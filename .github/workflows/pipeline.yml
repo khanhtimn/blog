@@ -7,6 +7,7 @@ on:
 
 permissions:
   packages: write
+  contents: read
 
 jobs:
   build-and-push-image:
@@ -18,6 +19,11 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
+      - name: Lowercase Repository Name
+        id: string
+        run: |
+          echo "repository=${GITHUB_REPOSITORY,,}" >> $GITHUB_OUTPUT
+
       - name: Log in to the Container registry
         uses: docker/login-action@v3
         with:
@@ -25,20 +31,15 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.CONTAINER_REGISTRY_TOKEN }}
 
-      - name: Extract metadata (tags, labels) for Docker
-        id: meta
-        uses: docker/metadata-action@v5
-        with:
-          images: ghcr.io/${{ github.repository }}
-
       - name: Build and push Docker image
         uses: docker/build-push-action@v6
+        id: docker_build
         with:
           context: .
           push: true
           tags: |
-            ghcr.io/${{ github.repository }}:latest
-            ghcr.io/${{ github.repository }}:${{ github.sha }}
+            ghcr.io/${{ steps.string.outputs.repository }}:latest
+            ghcr.io/${{ steps.string.outputs.repository }}:${{ github.sha }}
           build-args: |
             POSTGRES_USER=${{ secrets.POSTGRES_USER }}
             POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}
@@ -48,6 +49,11 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
+      - name: Verify image exists
+        run: |
+          docker pull ghcr.io/${{ steps.string.outputs.repository }}:latest
+          docker pull ghcr.io/${{ steps.string.outputs.repository }}:${{ github.sha }}
+
   deploy:
     runs-on: ubuntu-latest
     needs:
@@ -55,6 +61,16 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+
+      - name: Lowercase Repository Name
+        id: string
+        run: |
+          echo "repository=${GITHUB_REPOSITORY,,}" >> $GITHUB_OUTPUT
+
+      - name: Verify image exists
+        run: |
+          echo "Verifying image: ghcr.io/${{ steps.string.outputs.repository }}:${{ github.sha }}"
+          docker pull ghcr.io/${{ steps.string.outputs.repository }}:${{ github.sha }}
 
       - name: Create env file
         run: |
