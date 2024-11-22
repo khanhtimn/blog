@@ -2,7 +2,15 @@ version: "3.8"
 
 services:
   blog:
-    image: ghcr.io/khanhtimn/cargo-leptos-builder-musl:latest
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        - POSTGRES_USER_FILE=/run/secrets/postgres_user
+        - POSTGRES_PASSWORD_FILE=/run/secrets/postgres_password
+        - POSTGRES_HOST_FILE=/run/secrets/postgres_host
+        - POSTGRES_PORT_FILE=/run/secrets/postgres_port
+        - POSTGRES_DB_FILE=/run/secrets/postgres_db
     deploy:
       replicas: 2
       update_config:
