@@ -1,27 +1,22 @@
 name: pipeline
-
 on:
   push:
     branches:
       - "main"
-
 permissions:
   packages: write
-
 jobs:
   build-and-push-image:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-        
       - name: Log in to the Container registry
         uses: docker/login-action@v3
         with:
           registry: https://ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.CONTAINER_REGISTRY_TOKEN }}
-        
       - name: Build and push Docker image
         uses: docker/build-push-action@v6
         with:
@@ -36,7 +31,6 @@ jobs:
             POSTGRES_HOST=${{ secrets.POSTGRES_HOST }}
             POSTGRES_PORT=${{ secrets.POSTGRES_PORT }}
             POSTGRES_DB=${{ secrets.POSTGRES_DB }}
-
   deploy:
     runs-on: ubuntu-latest
     needs:
@@ -44,15 +38,18 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-        
-      - name: create env file
+      - name: Create env file
         run: |
           echo "GIT_COMMIT_HASH=${{ github.sha }}" >> ./envfile
-          
+      - name: Start SSH Agent
+        run: |
+          eval $(ssh-agent -s)
+          ssh-add - <<< "${{ secrets.DEPLOY_SSH_PRIVATE_KEY_PASSPHRASE }}"
+          echo "${{ secrets.DEPLOY_SSH_PRIVATE_KEY }}" | ssh-add -
       - name: Docker Stack Deploy
         uses: cssnr/stack-deploy-action@v1
         with:
-          name: blog 
+          name: blog
           file: docker-stack.yaml
           host: ${{ secrets.DEPLOY_HOST }}
           user: deploy
