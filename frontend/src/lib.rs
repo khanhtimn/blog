@@ -1,5 +1,6 @@
 use app::*;
 
+#![allow(clippy::all)]
 #[wasm_bindgen::prelude::wasm_bindgen]
 pub fn hydrate() {
     // initializes logging using the `log` crate
