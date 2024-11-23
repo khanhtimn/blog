@@ -10,7 +10,7 @@ services:
       - postgres_db
       - postgres_port
     environment:
-      - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOST}:${POSTGRES_PORT}/${POSTGRES_DB}
+      - DATABASE_URL=postgresql://$(cat /run/secrets/postgres_user):$(cat /run/secrets/postgres_password)@$(cat /run/secrets/postgres_host):$(cat /run/secrets/postgres_port)/$(cat /run/secrets/postgres_db)
       - POSTGRES_HOST=/run/secrets/postgres_host
       - POSTGRES_PASSWORD=/run/secrets/postgres_password
       - POSTGRES_USER=/run/secrets/postgres_user
