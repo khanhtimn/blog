@@ -77,12 +77,10 @@ jobs:
           POSTGRES_DB=${{ secrets.POSTGRES_DB }}
           EOF
 
-      - name: Docker Stack Deploy
-        uses: cssnr/stack-deploy-action@v1
+      - name: Portainer Stack Deploy
+        uses: cssnr/portainer-stack-deploy-action@v1
         with:
+          token: ${{ secrets.PORTAINER_TOKEN }}
+          url: ${{ secrets.PORTAINER_HOST }}
           name: blog
           file: docker-stack.yaml
-          host: ${{ secrets.DEPLOY_HOST }}
-          user: deploy
-          ssh_key: ${{ secrets.DEPLOY_SSH_PRIVATE_KEY }}
-          env_file: ./envfile
