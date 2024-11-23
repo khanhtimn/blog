@@ -1,3 +1,4 @@
+import daisyui from "daisyui";
 import { addDynamicIconSelectors } from "@iconify/tailwind";
 import typography from "@tailwindcss/typography";
 import defaultTheme from "tailwindcss/defaultTheme";
@@ -8,7 +9,7 @@ module.exports = {
         files: ["*.html", "./app/src/**/*.rs"],
     },
     daisyui: {
-        themes: ["business"],
+        themes: ["business", "cupcake"],
     },
     theme: {
         extend: {
@@ -18,5 +19,5 @@ module.exports = {
             },
         },
     },
-    plugins: [typography, addDynamicIconSelectors(), require("daisyui")],
+    plugins: [typography, addDynamicIconSelectors(), daisyui],
 };

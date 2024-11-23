@@ -1,30 +1,29 @@
 version: "3.8"
 
 services:
-  web:
-    image: ghcr.io/khanhtimn/blog:${GIT_COMMIT_HASH:-latest}
-    secrets:
-      - database_url
-    environment:
-      - DATABASE_URL=/run/secrets/database_url
-      - LEPTOS_OUTPUT_NAME=blog
-      - LEPTOS_SITE_ROOT=./site
-      - LEPTOS_SITE_PKG_DIR=./pkg
-      - LEPTOS_SITE_ADDR=0.0.0.0:3000
-      - LEPTOS_RELOAD_PORT=3001
-    deploy:
-      update_config:
-        order: start-first
-    ports:
-      - "3000:3000"
-      - "3001:3001"
-    volumes:
-      - blog-data:/app/data
+    web:
+        image: ghcr.io/khanhtimn/blog:${GIT_COMMIT_HASH:-latest}
+        secrets:
+            - database_url
+        environment:
+            - LEPTOS_OUTPUT_NAME=blog
+            - LEPTOS_SITE_ROOT=./site
+            - LEPTOS_SITE_PKG_DIR=./pkg
+            - LEPTOS_SITE_ADDR=0.0.0.0:3000
+            - LEPTOS_RELOAD_PORT=3001
+        deploy:
+            update_config:
+                order: start-first
+        ports:
+            - "3000:3000"
+            - "3001:3001"
+        volumes:
+            - blog-data:/app/data
 
 volumes:
-  blog-data:
-    driver: local
+    blog-data:
+        driver: local
 
 secrets:
-  database_url:
-    external: true
+    database_url:
+        external: true

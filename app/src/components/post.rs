@@ -19,10 +19,21 @@ pub fn Post(post: BlogPost) -> impl IntoView {
                     class="w-full h-96 object-cover rounded-lg shadow-lg"
                 />
             </div>
-            <div
-                class="prose prose-lg max-w-none"
+            // <div
+            //     class="prose prose-lg max-w-none"
+            //     inner_html={post.content}
+            // />
+            <section class="p-4 mt-4 table-of-contents-parent">
+                <h2 class="text-xl md:text-2xl">"Contents"</h2>
+                <div
+                    class="prose lg:prose-xl dark:prose-invert text-base md: w-full"
+                    inner_html={post.toc}
+                ></div>
+            </section>
+            <section
+                class="mx-auto prose lg:prose-xl dark:prose-invert text-base mt-8"
                 inner_html={post.content}
-            />
+            ></section>
         </article>
     }
 }

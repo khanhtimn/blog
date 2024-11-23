@@ -1,11 +1,11 @@
 use leptos::prelude::*;
-use leptos::logging::log;
 use crate::components::flappy_bird::FlappyBird;
 use crate::models::flappy_bird::GameAssets;
 
 #[server(GetGameAssets)]
 pub async fn get_game_assets() -> Result<GameAssets, ServerFnError> {
-    log!("Server: Getting game assets");
+    use leptos::logging::log;
+    log!("Server: Sending game assets");
     Ok(GameAssets {
         bird_frames: vec![
             "/flappybird/img/bird/b0.png".to_string(),
@@ -25,14 +25,6 @@ pub fn PageNotFound() -> impl IntoView {
     let dialog_ref = NodeRef::<leptos::html::Dialog>::new();
     let (show_game, set_show_game) = signal(false);
 
-    let assets = Resource::new(
-        || (),
-        move |_| {
-            log!("Client: Fetching game assets");
-            get_game_assets()
-        }
-    );
-
     Effect::new(move |_| {
         if let Some(dialog) = dialog_ref.get() {
             if show_game.get() {
@@ -45,7 +37,6 @@ pub fn PageNotFound() -> impl IntoView {
 
     view! {
         <div class="min-h-screen bg-base-200 flex flex-col items-center justify-center p-4 relative">
-            // Main 404 content
             <div class="card w-96 bg-base-100 shadow-xl">
                 <div class="card-body items-center text-center">
                     <h1 class="card-title text-5xl font-bold mb-4">"404"</h1>
@@ -60,15 +51,6 @@ pub fn PageNotFound() -> impl IntoView {
 
                     <p class="text-base-content/70 mb-6">
                         "The page you're looking for has taken flight."
-                        <br/>
-                        <Suspense fallback=move || {}>
-                            <span class="italic">
-                                {move || match assets.get() {
-                                    None => "(Nothing to see here 😊)",
-                                    Some(_) => "(psst... click the bird for a surprise!)",
-                                }}
-                            </span>
-                        </Suspense>
                     </p>
 
                     <div class="card-actions">
@@ -95,7 +77,12 @@ pub fn PageNotFound() -> impl IntoView {
                             "✕"
                         </button>
                     </form>
-                    <FlappyBird assets=assets/>
+                    <Await
+                        future=get_game_assets()
+                        let:assets
+                    >
+                        <FlappyBird assets={assets.clone().unwrap()}/>
+                    </Await>
                 </div>
             </dialog>
         </div>

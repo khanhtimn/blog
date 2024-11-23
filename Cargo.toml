@@ -18,7 +18,7 @@ leptos = { version = "0.7.0-rc1", features = ["nightly"] }
 leptos_meta = { version = "0.7.0-rc1" }
 leptos_router = { version = "0.7.0-rc1" }
 leptos_axum = { version = "0.7.0-rc1" }
-leptos-use = { version = "0.14.0-rc2", features = ["use_interval_fn", "use_raf_fn", "storage"] }
+leptos-use = { version = "0.14.0-rc2", features = ["use_interval_fn", "use_raf_fn", "use_color_mode", "use_cycle_list", "storage"] }
 
 axum = { version = "0.7", features = ["macros"] }
 cfg-if = "1"

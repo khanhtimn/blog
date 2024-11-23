@@ -9,6 +9,7 @@ pub struct BlogPost {
     pub description: String,
     pub hero_image: String,
     pub content: String,
+    pub toc: Option<String>,
     pub published_at: String,
     pub slug: String,
     #[serde(skip_serializing_if = "Vec::is_empty")]
@@ -34,7 +35,7 @@ cfg_if! {
 
         impl SqlPost {
             pub fn into_post(self) -> BlogPost {
-                let HTMLOutput{content,..} = femark::process_markdown_to_html(&self.content).unwrap_or_default();
+                let HTMLOutput{content, toc,..} = femark::process_markdown_to_html(&self.content).unwrap_or_default();
                 BlogPost {
                     id: self.id,
                     title: self.title,
@@ -42,6 +43,7 @@ cfg_if! {
                     hero_image: self.hero_image,
                     published_at: self.published_at.format("%d/%m/%Y").to_string(),
                     content,
+                    toc,
                     slug: self.slug,
                     categories: self.categories,
                 }

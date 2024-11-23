@@ -15,7 +15,7 @@ pub const BACKGROUND_HEIGHT: f64 = 228.0;
 pub const BIRD_X_POSITION: f64 = 80.0;
 pub const BIRD_Y_POSITION: f64 = 80.0;
 
-#[derive(Clone, Default, Serialize, Deserialize)]
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
 pub struct GameAssets {
     pub bird_frames: Vec<String>,
     pub pipe_top: String,

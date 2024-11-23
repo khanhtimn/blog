@@ -6,15 +6,15 @@ use crate::models::category::Category;
 #[component]
 pub fn PostCategory(
     categories: Vec<Category>,
-    selected_category: Signal<Option<String>>,
+    selected_category: ReadSignal<Option<String>>,
 ) -> impl IntoView {
     view! {
         <div class="flex flex-wrap gap-2 mb-8">
             <A href="/blog">
                 <div
                     class={move || match selected_category.get() {
-                        None => "px-4 py-2 rounded-full transition-colors bg-accent",
-                        Some(_) => "px-4 py-2 rounded-full transition-colors hover:bg-accent",
+                        None => "text-bold px-4 py-2 rounded-full transition-colors bg-accent",
+                        Some(_) => "text-bold px-4 py-2 rounded-full transition-colors hover:bg-accent",
                     }}
                 >
                     "All"
@@ -25,10 +25,10 @@ pub fn PostCategory(
                 view! {
                     <A href={format!("/blog?category={}", cat.slug)}>
                         <div
-                        class={move || match selected_category.get().as_deref() {
+                        class={move || match selected_category.get() {
                                 Some(current_cat) if current_cat == cat_slug =>
-                                    "px-4 py-2 rounded-full transition-colors bg-accent",
-                                _ => "px-4 py-2 rounded-full transition-colors hover:bg-accent",
+                                    "text-bold px-4 py-2 rounded-full transition-colors bg-accent",
+                                _ => "text-bold px-4 py-2 rounded-full transition-colors hover:bg-accent",
                             }}
                         >
                             {cat.name}

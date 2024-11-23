@@ -46,7 +46,7 @@ pub fn App() -> impl IntoView {
 
         <Router set_is_routing>
             <main>
-            <Routes fallback=move || view! { <PageNotFound/> }>
+            <Routes fallback=PageNotFound>
                     <Route
                         path=path!("/")
                         view=HomePage

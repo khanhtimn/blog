@@ -13,7 +13,6 @@ pub async fn get_blog_post(slug: String) -> Result<BlogPost, ServerFnError> {
     state.db.get_post_by_slug(&slug)
         .await
         .map_err(|e| ServerFnError::ServerError(e.to_string()))
-
 }
 
 #[component]

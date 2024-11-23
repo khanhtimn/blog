@@ -48,27 +48,24 @@ pub fn BlogList() -> impl IntoView {
     view! {
         <div class="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
             <h1 class="text-3xl font-bold mb-4">"Latest Articles"</h1>
-            //Blog Posts Categories
             <Suspense>
                   {move || match categories.get() {
                       None => EitherOf3::A(view! { <div>"Loading categories..."</div> }),
                       Some(Ok(categories)) => EitherOf3::B(view! {
                           <PostCategory
                               categories=categories
-                              selected_category=selected_category.get().into()
+                              selected_category=selected_category
                           />
                       }),
                       Some(Err(e)) => EitherOf3::C(view! {
                           <div class="text-red-500">"Error loading categories: " {e.to_string()}</div>
                       }),
                   }}
-              </Suspense>
+            </Suspense>
 
-            //Blog Posts Cards
             <Suspense
                 fallback=move || view! {
                     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                        // Skeleton loading cards
                         {(0..3).map(|_| view! {
                             <div class="flex w-52 flex-col gap-4">
                                 <div class="skeleton h-32 w-full"></div>

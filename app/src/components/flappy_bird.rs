@@ -1,7 +1,6 @@
 use leptos::prelude::*;
 use leptos::either::*;
 use wasm_bindgen::prelude::*;
-use leptos::logging::log;
 use leptos_use::{use_interval_fn, use_raf_fn, storage::*};
 use codee::string::JsonSerdeCodec;
 use rand::Rng;
@@ -11,11 +10,11 @@ use crate::models::flappy_bird::*;
 
 #[component]
 pub fn FlappyBird(
-    assets: Resource<Result<GameAssets, ServerFnError>>,
+    assets: GameAssets,
 ) -> impl IntoView {
     let canvas_ref = NodeRef::<leptos::html::Canvas>::new();
-
-    let (game_state, set_game_state) = signal(GameState::Loading);
+    let assets = StoredValue::new(assets);
+    let (game_state, set_game_state) = signal(GameState::GetReady);
     let (score, set_score) = signal(0);
     let (frame_count, set_frame_count) = signal(0);
 
@@ -31,21 +30,6 @@ pub fn FlappyBird(
     });
 
     let (pipes, set_pipes) = signal::<Vec<Pipe>>(vec![]);
-
-    Effect::new(move |_| {
-        match assets.get() {
-            Some(Ok(_)) => {
-                log!("Assets loaded successfully");
-                set_game_state.set(GameState::GetReady);
-            }
-            Some(Err(e)) => {
-                log!("Error loading assets: {:?}", e);
-            }
-            None => {
-                log!("Assets not loaded yet");
-            }
-        }
-    });
 
     let handle_input = move |_| {
         match game_state.get() {
@@ -92,7 +76,6 @@ pub fn FlappyBird(
                 let ctx = canvas.get_context("2d").unwrap().unwrap()
                     .dyn_into::<web_sys::CanvasRenderingContext2d>().unwrap();
 
-                if let Some(Ok(game_assets)) = assets.get() {
                     let _stop = use_raf_fn(move |_| {
                         update_game(
                             game_state.get(),
@@ -109,10 +92,9 @@ pub fn FlappyBird(
                             bird.get(),
                             pipes.get(),
                             frame_count.get(),
-                            Some(Ok(game_assets.clone())),
+                            assets.get_value(),
                         );
                     });
-                }
             }
         }
     });
@@ -243,52 +225,50 @@ fn draw_game(
     bird: Bird,
     pipes: Vec<Pipe>,
     frame_count: u32,
-    assets: Option<Result<GameAssets, ServerFnError>>,
+    assets: GameAssets,
 ){
-    if let Some(Ok(assets)) = assets {
-        ctx.set_fill_style(&BACKDROP_COLOR.into());
-        ctx.fill_rect(0.0, 0.0, CANVAS_WIDTH as f64, CANVAS_HEIGHT as f64);
+    ctx.set_fill_style(&BACKDROP_COLOR.into());
+    ctx.fill_rect(0.0, 0.0, CANVAS_WIDTH as f64, CANVAS_HEIGHT as f64);
 
-        let draw_image = |src: &str, x: f64, y: f64| {
-            let img = web_sys::HtmlImageElement::new().unwrap();
-            img.set_src(src);
-            ctx.draw_image_with_html_image_element(&img, x, y).ok();
-        };
+    let draw_image = |src: &str, x: f64, y: f64| {
+        let img = web_sys::HtmlImageElement::new().unwrap();
+        img.set_src(src);
+        ctx.draw_image_with_html_image_element(&img, x, y).ok();
+    };
 
-        draw_image(&assets.background, 0.0, CANVAS_HEIGHT as f64 - BACKGROUND_HEIGHT);
-        draw_image(&assets.background, CANVAS_WIDTH as f64 / 2.0, CANVAS_HEIGHT as f64 - BACKGROUND_HEIGHT);
-        for pipe in pipes.iter() {
-            draw_image(&assets.pipe_top, pipe.x, pipe.y);
+    draw_image(&assets.background, 0.0, CANVAS_HEIGHT as f64 - BACKGROUND_HEIGHT);
+    draw_image(&assets.background, CANVAS_WIDTH as f64 / 2.0, CANVAS_HEIGHT as f64 - BACKGROUND_HEIGHT);
+    for pipe in pipes.iter() {
+        draw_image(&assets.pipe_top, pipe.x, pipe.y);
 
-            let bottom_pipe_y = pipe.y + PIPE_TOP_HEIGHT + PIPE_GAP;
-            draw_image(&assets.pipe_bottom, pipe.x, bottom_pipe_y);
-        }
-
-        ctx.save();
-        ctx.translate(BIRD_X_POSITION, bird.y).unwrap();
-        ctx.rotate(bird.rotation * PI / 180.0).unwrap();
-        let bird_img = &assets.bird_frames[bird.frame];
-        draw_image(bird_img, -BIRD_SIZE/2.0, -BIRD_SIZE/2.0);
-        ctx.restore();
-
-        let ground_offset = match state {
-            GameState::Playing => {
-                (frame_count as f64 * 2.0) % CANVAS_WIDTH as f64
-            },
-            _ => 0.0
-        };
-
-        draw_image(
-            &assets.ground,
-            -ground_offset,
-            CANVAS_HEIGHT as f64 - GROUND_HEIGHT
-        );
-        draw_image(
-            &assets.ground,
-            CANVAS_WIDTH as f64 - ground_offset,
-            CANVAS_HEIGHT as f64 - GROUND_HEIGHT
-        );
+        let bottom_pipe_y = pipe.y + PIPE_TOP_HEIGHT + PIPE_GAP;
+        draw_image(&assets.pipe_bottom, pipe.x, bottom_pipe_y);
     }
+
+    ctx.save();
+    ctx.translate(BIRD_X_POSITION, bird.y).unwrap();
+    ctx.rotate(bird.rotation * PI / 180.0).unwrap();
+    let bird_img = &assets.bird_frames[bird.frame];
+    draw_image(bird_img, -BIRD_SIZE/2.0, -BIRD_SIZE/2.0);
+    ctx.restore();
+
+    let ground_offset = match state {
+        GameState::Playing => {
+            (frame_count as f64 * 2.0) % CANVAS_WIDTH as f64
+        },
+        _ => 0.0
+    };
+
+    draw_image(
+        &assets.ground,
+        -ground_offset,
+        CANVAS_HEIGHT as f64 - GROUND_HEIGHT
+    );
+    draw_image(
+        &assets.ground,
+        CANVAS_WIDTH as f64 - ground_offset,
+        CANVAS_HEIGHT as f64 - GROUND_HEIGHT
+    );
 }
 
 fn check_collision(bird: Bird, pipes: Vec<Pipe>) -> bool {
