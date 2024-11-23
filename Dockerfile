@@ -4,8 +4,6 @@ FROM ghcr.io/khanhtimn/cargo-leptos-builder-musl:latest AS builder
 WORKDIR /work
 COPY . .
 
-ENV SQLX_OFFLINE=true
-
 RUN mkdir -p target/site
 
 # Run clippy checks
@@ -18,7 +16,9 @@ COPY style/tailwind.css ./style/
 RUN npm i -D
 RUN cargo leptos build --release -vv
 
-FROM scratch as app
+#FROM scratch as app
+FROM alpine:3.18.2 as app
+
 
 USER 10001
 
