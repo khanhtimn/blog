@@ -39,11 +39,7 @@ jobs:
 
       - name: Build and push Docker image
         env:
-          POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
-          POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
-          POSTGRES_HOST: ${{ secrets.POSTGRES_HOST }}
-          POSTGRES_PORT: ${{ secrets.POSTGRES_PORT }}
-          POSTGRES_DB: ${{ secrets.POSTGRES_DB }}
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
         uses: docker/build-push-action@v6
         with:
           context: .
@@ -52,11 +48,7 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
           platforms: linux/amd64
           build-args: |
-            POSTGRES_USER=${{ env.POSTGRES_USER }}
-            POSTGRES_PASSWORD=${{ env.POSTGRES_PASSWORD }}
-            POSTGRES_HOST=${{ env.POSTGRES_HOST }}
-            POSTGRES_PORT=${{ env.POSTGRES_PORT }}
-            POSTGRES_DB=${{ env.POSTGRES_DB }}
+            DATABASE_URL=${{ secrets.DATABASE_URL }}
 
   deploy:
     runs-on: ubuntu-latest
@@ -70,11 +62,7 @@ jobs:
         run: |
           cat << EOF > ./envfile
           GIT_COMMIT_HASH=${{ github.sha }}
-          POSTGRES_USER=${{ secrets.POSTGRES_USER }}
-          POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}
-          POSTGRES_HOST=${{ secrets.POSTGRES_HOST }}
-          POSTGRES_PORT=${{ secrets.POSTGRES_PORT }}
-          POSTGRES_DB=${{ secrets.POSTGRES_DB }}
+          DATABASE_URL=${{ secrets.DATABASE_URL }}
           EOF
 
       - name: Portainer Stack Deploy

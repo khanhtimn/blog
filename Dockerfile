@@ -1,15 +1,7 @@
 # Main Dockerfile
 FROM ghcr.io/khanhtimn/cargo-leptos-builder-musl:latest AS builder
 
-# Build arguments for database configuration
-ARG POSTGRES_USER
-ARG POSTGRES_PASSWORD
-ARG POSTGRES_HOST
-ARG POSTGRES_PORT
-ARG POSTGRES_DB
-
-# Set environment variables for build time
-ENV DATABASE_URL="postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOST}:${POSTGRES_PORT}/${POSTGRES_DB}"
+ENV DATABASE_URL=${DATABASE_URL}
 
 WORKDIR /work
 
