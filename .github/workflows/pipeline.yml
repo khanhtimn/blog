@@ -38,8 +38,6 @@ jobs:
           password: ${{ secrets.CONTAINER_REGISTRY_TOKEN }}     
 
       - name: Build and push Docker image
-        env:
-          DATABASE_URL: ${{ secrets.DATABASE_URL }}
         uses: docker/build-push-action@v6
         with:
           context: .
@@ -47,8 +45,6 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           platforms: linux/amd64
-          build-args: |
-            DATABASE_URL=${{ secrets.DATABASE_URL }}
 
   deploy:
     runs-on: ubuntu-latest
@@ -62,7 +58,6 @@ jobs:
         run: |
           cat << EOF > ./envfile
           GIT_COMMIT_HASH=${{ github.sha }}
-          DATABASE_URL=${{ secrets.DATABASE_URL }}
           EOF
 
       - name: Portainer Stack Deploy

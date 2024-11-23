@@ -1,28 +1,23 @@
 # Main Dockerfile
 FROM ghcr.io/khanhtimn/cargo-leptos-builder-musl:latest AS builder
 
-ENV DATABASE_URL=${DATABASE_URL}
-
 WORKDIR /work
-
 COPY . .
 
-# Create necessary directories
+ENV SQLX_OFFLINE=true
+
 RUN mkdir -p target/site
 
 # Run clippy checks
 # Now this is just annoying with current nightly rust
 # RUN cargo clippy -- -D warnings
 
-# Setup Tailwind CSS
 COPY tailwind.config.js .
 COPY style/tailwind.css ./style/
 
-# Build the application
 RUN npm i -D
 RUN cargo leptos build --release -vv
 
-# Production stage
 FROM scratch as app
 
 USER 10001
