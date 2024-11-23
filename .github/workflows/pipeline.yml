@@ -49,11 +49,6 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
-      - name: Verify image exists
-        run: |
-          docker pull ghcr.io/${{ steps.string.outputs.repository }}:latest
-          docker pull ghcr.io/${{ steps.string.outputs.repository }}:${{ github.sha }}
-
   deploy:
     runs-on: ubuntu-latest
     needs:
@@ -67,10 +62,11 @@ jobs:
         run: |
           echo "repository=${GITHUB_REPOSITORY,,}" >> $GITHUB_OUTPUT
 
-      - name: Verify image exists
+      - name: Create GitHub token file
         run: |
-          echo "Verifying image: ghcr.io/${{ steps.string.outputs.repository }}:${{ github.sha }}"
-          docker pull ghcr.io/${{ steps.string.outputs.repository }}:${{ github.sha }}
+          echo ${{ secrets.CONTAINER_REGISTRY_TOKEN }} | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+          mkdir -p ~/.docker
+          cp ~/.docker/config.json ./docker-config.json
 
       - name: Create env file
         run: |
