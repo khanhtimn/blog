@@ -5,6 +5,7 @@ use crate::models::flappy_bird::GameAssets;
 #[server(GetGameAssets)]
 pub async fn get_game_assets() -> Result<GameAssets, ServerFnError> {
     use leptos::logging::log;
+    leptos_axum::redirect("/404");
     log!("Server: Sending game assets");
     Ok(GameAssets {
         bird_frames: vec![

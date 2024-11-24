@@ -3,6 +3,7 @@ use leptos::either::*;
 use leptos_router::hooks::use_params_map;
 use crate::models::post::BlogPost;
 use crate::components::post::Post;
+use super::page_not_found::PageNotFound;
 
 #[server(GetBlogPost)]
 pub async fn get_blog_post(slug: String) -> Result<BlogPost, ServerFnError> {
@@ -39,12 +40,8 @@ pub fn BlogPost() -> impl IntoView {
             {move || match post.get() {
                 None => EitherOf3::A(view! { <div>"Loading..."</div> }),
                 Some(Ok(post)) => EitherOf3::B(view! { <Post post /> }),
-                Some(Err(e)) => EitherOf3::C(view! {
-                    <div class="max-w-4xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
-                        <div class="text-red-500 p-4 bg-red-50 rounded-lg">
-                            "Error loading post: " {e.to_string()}
-                        </div>
-                    </div>
+                Some(Err(_)) => EitherOf3::C(view! {
+                    <PageNotFound/>
                 }),
             }}
         </Suspense>
