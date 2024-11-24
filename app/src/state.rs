@@ -12,6 +12,7 @@ pub struct AppState {
 
 impl AppState {
     pub async fn try_from_leptos_state(leptos_options: LeptosOptions) -> Result<Self, ServerFnError> {
+        // Should find another way to handle this
         let database_url = match std::fs::read_to_string("/run/secrets/database_url") {
             Ok(secret) => secret.trim().to_string(),
             Err(_) => std::env::var("DATABASE_URL").unwrap_or_default()

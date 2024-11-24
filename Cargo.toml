@@ -14,11 +14,11 @@ codegen-units = 1
 opt-level = 'z'
 
 [workspace.dependencies]
-leptos = { version = "0.7.0-rc1", features = ["nightly"] }
-leptos_meta = { version = "0.7.0-rc1" }
-leptos_router = { version = "0.7.0-rc1" }
-leptos_axum = { version = "0.7.0-rc1" }
-leptos-use = { version = "0.14.0-rc2", features = ["use_interval_fn", "use_raf_fn", "use_color_mode", "use_cycle_list", "storage"] }
+leptos = { version = "0.7.0-rc2", features = ["nightly"] }
+leptos_meta = { version = "0.7.0-rc2" }
+leptos_router = { version = "0.7.0-rc2" }
+leptos_axum = { version = "0.7.0-rc2" }
+leptos-use = { version = "0.14.0-rc3", features = ["use_interval_fn", "use_raf_fn", "use_color_mode", "use_cycle_list", "storage"] }
 
 axum = { version = "0.7", features = ["macros"] }
 cfg-if = "1"
@@ -48,8 +48,8 @@ web-sys = { version = "0.3", features = [
 ]}
 codee = { version = "0.2", features = ["json_serde"] }
 femark = "0.1.6"
-getrandom = { version = "0.2.7", features = ["js"] }
-rand = { version = "0.8.5", features = ["small_rng"] }
+getrandom = { version = "0.2", features = ["js"] }
+rand = { version = "0.8", features = ["small_rng"] }
 
 # See https://github.com/akesson/cargo-leptos for documentation of all the parameters.
 
